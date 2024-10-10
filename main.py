@@ -1,30 +1,34 @@
-#importando as biblotecas
 import streamlit as st
 import pandas as pd
-import plotly. express as px
+import plotly.express as px
 
-#configurando a tela do streamlit
-st.set_page_config(layout="wide")
+st.set_page_config(layout='wide')
 
-#lendo os arquivos csv
+st.title("Ache o seu :red[Livro]")
+st.divider()
+#importando os arquivos csv
+df_100_books = pd.read_csv("datasets/Top-100 Trending Books.csv")
+df_100_books = df_100_books.drop('url', axis=1)
 df_reviews = pd.read_csv("datasets/customer reviews.csv")
-df_top_100 = pd.read_csv("datasets/Top-100 Trending Books.csv")
 
+#criando o filtro
+price_max = df_100_books['book price'].max()
+price_min = df_100_books['book price'].min()
+genre = df_100_books['genre'].unique()
 
-#colocando os filtros de seleção
-price_max = df_top_100["book price"].max()
-price_min = df_top_100["book price"].min()
-
-#definindo o filtro
-filter = st.sidebar.slider('Price Range', price_min, price_max, price_max)
-
-#colocando o filtro no df
-df_books = df_top_100[df_top_100["book price"] <= filter]
+filter = st.sidebar.slider("Price Range", price_min, price_max, price_max)
+filter2 = st.sidebar.selectbox('Qual gênero você quer?', genre)
+df_books = df_100_books[(df_100_books['book price'] <= filter)]
 df_books
-#contruindo os gráficos
-fig = px.bar(df_books["year of publication"].value_counts())
-fig2 = px.histogram(df_books['book price'])
 
+st.title("Aqui temos os :red[Gráficos]")
+
+#fazendo os gráficos
 col1, col2 = st.columns(2)
+fig = px.bar(df_books['year of publication'].value_counts())
+fig2 = px.histogram(df_books.groupby('genre')[['rating']].mean().sort_values('rating'))
+
 col1.plotly_chart(fig)
 col2.plotly_chart(fig2)
+
+
